@@ -6,7 +6,7 @@ import ddf.minim.*;
 
 
 Minim gerenciador;   // Declaração de um objeto da classe Minim. Será utilizada para controlar os áudios do programa.
-AudioPlayer music, play_effect, fight, enemyShoot, playerShoot, gameOver;  // Para cada áudio utilizado no software é necessário uma variável do tipo AudioPlayer.size(400, 400);
+AudioPlayer music, play_effect, fight, enemyShoot, playerShoot, gameOver, endSong;  // Para cada áudio utilizado no software é necessário uma variável do tipo AudioPlayer.size(400, 400);
 // Indica qual imagem do sprite será desenhado.
 // Quando true a img1 do sprite é desenhado.
 // Quando false a img2 do sprite é desenhado.
@@ -25,14 +25,15 @@ boolean muted =false;
 float x = 150;   // Variáveis utilizadas para definir a coordenada onde o sprite será desenhado.
 float y = 150;   // Variáveis utilizadas para definir a coordenada onde o sprite será desenhado.
 int tempo;   // Variável utilizada para armazenar o tempo de execução em milissegundos
-PImage img, img1, img2, img3, img4, heart1, heart2, gameOverBG, creditoBG; //Variáveis utilizadas para armazenar os sprites.
+PImage img, img1, img2, img3, img4, heart1, heart2, gameOverBG, creditoBG, winBG; //Variáveis utilizadas para armazenar os sprites.
 PImage img_enemy, img_player;
 PFont font;
 
 
 int op = 0;
 
-boolean start =false;
+boolean start =false, endScreen;
+
 
 
 ArrayList<Shot> shots = new ArrayList<Shot>();
@@ -41,6 +42,7 @@ int velocity = 5;
 int posX, posY;
 int randomNumber;
 long startTime =0, finishTime, timeElapsed;
+long endScreenStart =0, endScreenNow;
 int iterator  = 0;
 int [] moveX = new int[50000];
 int [] moveY = new int [50000];
@@ -49,7 +51,6 @@ int enemyY, enemyX = 30, playerX, playerY = 540;
 
 
 
-//Enemy enemy = new Enemy(0, 0, 30, velocity);
 //Player player1 = new Player(10);
 PShape player, enemy, life;
 
@@ -74,6 +75,7 @@ void setup() {
   img_player = loadImage("player.png");
   img_enemy = loadImage("enemy.png");
   gameOverBG = loadImage("gameOverBackground.png");
+  winBG = loadImage("winBG.jpg");
   creditoBG = loadImage("creditos2.png");
   img3 = loadImage("space_bg.png");
   img3.resize(500,600);
@@ -82,12 +84,14 @@ void setup() {
   
   
   gerenciador = new Minim(this);
+  gerenciador2 = new Minim (this);
   music = gerenciador.loadFile("musicamenu.mp3");
   play_effect = gerenciador.loadFile("start-level.wav");
   fight = gerenciador.loadFile("fight.mp3");
   enemyShoot = gerenciador.loadFile("enemyShoot.mp3");
   playerShoot = gerenciador.loadFile("playerShoot.mp3");
   gameOver = gerenciador.loadFile("GameOver.mp3");
+  endSong = gerenciador.loadFile("ending-Song.mp3");
   fight.rewind();
   music.rewind();
   music.play();
@@ -102,7 +106,7 @@ void draw() {
   else if (estado ==2) iniciarJogo();
   else if (estado ==3) gameOver();
   else if (estado ==4) iniciarCreditos();
-  
+  else if (estado ==5) winScreen();
 
  }
 
@@ -147,7 +151,7 @@ void keyPressed() {
     
   }
   //sair dos créditos e voltar para o menu
-  if(estado ==4 && keyCode == 10){
+  if(estado == 4 && keyCode == 10){
     estado =1;
     op =0;  
   }
@@ -179,7 +183,7 @@ public void iniciarJogo(){
   enemyX = enemyX + xspeed;
 
 
-
+  
   //Inverte o sentido da movimentação do inimigo quando ele bater nos limites da tela
   if(enemyX > height -120 || enemyX < 10){
     randomNumber = randomNumber();
@@ -218,8 +222,6 @@ public void iniciarJogo(){
       shape(life,50,0);
       life.setTexture(heart2);
       shape(life, 100, 0);
-
-
       break;
     case 2:
       shape(life,0,0);
@@ -238,6 +240,10 @@ public void iniciarJogo(){
       break;
   }
   
+  if(enemyHit == 1) {
+    background(0);
+    estado =5;
+  }
   
 }
   
@@ -283,7 +289,6 @@ int randomNumber() {
 
 public void iniciarMenu(){
   
-
   img.resize(500,600);
   background(img);
   imageMode(CENTER);
@@ -352,7 +357,6 @@ public void iniciarMenu(){
      fill(0);
      text(" INICIAR JOGO", 53, 440);
      text("CREDITOS", 205, 530);
-
      break;
      
     case 3: 
@@ -398,8 +402,6 @@ public void iniciarCreditos(){
   text(" INIMIGO DISPARAR, E DESTRUIR O INIMIGO. ", 45, 470);
   text("", 45, 500);
   
-  
-  
   //-----------criadores do jogo---------------
   textSize(10);
   fill(0, 408, 612);
@@ -409,16 +411,16 @@ public void iniciarCreditos(){
   text("GABRIEL KEGLEVICH MORAES ", 141, 580);
   textSize(5);
   text("PRESSIONE ENTER PARA VOLTAR AO MENU", 165, 590 );
+
 }
 
-//tela de game over
 public void gameOver(){
   //Voltar a trabalhar nessa parte
   estado = 3;
-  background(0);
   fight.pause();
   gameOver.play();
-  gameOverBG.resize(500,600);
+  background(0);
+  //gameOverBG.resize(500,600);
   background(gameOverBG);
   textSize(54);
   text("  GAME OVER ", 180, 300);
@@ -426,6 +428,7 @@ public void gameOver(){
   delay(13500);  
   println("Voltei para o menu");
   
+
   //volta para o menu
   estado = 1;
   gameOver.play(0);
@@ -435,6 +438,34 @@ public void gameOver(){
 }
 
 
+/*
+/ Reseta todas as variáveis do jogo
+*/
+
+public void winScreen(){
+  estado =5;
+  fight.pause();
+  
+  //endScreen = true;
+  //if(endScreen) {
+  //  endScreenStart = System.currentTimeMillis();
+  //  endScreen = false;
+  //}
+  //endScreenNow = System.currentTimeMillis();
+  if(endSong.isPlaying() || (keyCode == 87 && estado ==5)){
+    estado = 1;
+    endSong.pause();
+    //endScreen = true;
+  }
+  
+  endSong.play();
+  winBG.resize(500,600);
+  background (winBG);
+
+  
+  
+
+}
 
 public void reset (){
   

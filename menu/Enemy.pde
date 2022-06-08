@@ -7,11 +7,16 @@
 //  int tam;
 //  int velocity;
 //  int hit;
-    
+//  int enemyX, enemyY;
+//  PImage skin;
+//  //ArrayList<integer> moveX = new ArrayList<int>();
+//  //ArrayList<integer> moveY = new ArrayList<int>();
+
 //    //Construtor para receber textura do inimigo, tamanho, velocidade, etc...
-//    Enemy(int x1, int y1,int _tam, int _velocity){
+//    Enemy(int x1, int y1,int _tam, int _velocity, PImage _skin){
 //      //xPosition = x1;
 //      //yPosition = y1;
+//      skin = _skin;
 //      velocity = _velocity;
 //      tam = _tam;
 //      ellipse(x1, y1, tam, tam);
@@ -22,22 +27,30 @@
   
 //  //update move (por enquanto)
 //  public void update(){
+//    enemyX = moveX.get(pos);
+//    enemyY = moveY.get(pos);
     
-//    if(i == moveX.length ) {
-//      DDA(moveX[i], moveY[i]);
-//      i=1;  
+//    //Se chegou no ultimo elemento, chama novamente o método DDA
+//    if(moveX.get(moveX.size() -1 ) == enemyX){
+//      DDA(enemyX, enemyY);
 //    }
-           
+    
 //    //desenha o inimigo na posição:
-//    ellipse(moveX[i], moveY[i], tam,tam);
+      
+//    enemy = createShape(RECT, 0 , 0, tam,tam);
+//    enemy.setStroke(false);
+//    enemy.setTexture(skin);
+//    shape(enemy, enemyX, enemyY);  
+//    //enemyX = enemyX + xspeed;
+
+//    //ellipse(moveX[i], moveY[i], tam,tam);
 //    i++;
 
 //  }
   
+  
 //  public void DDA(int x1, int y1) {
 
-
-  
 //    //gera os valores aleatórios desde que eles sejam divisiveis por 10
 //    Random rand = new Random();
 //    int x2 = rand.nextInt(0, width-30);
@@ -62,39 +75,22 @@
 //    x = x1 + 0.5;
 //    y = y1 + 0.5;
 //    i=1;
-//    int [] moveX = new int[len];
-//    int [] moveY = new int[len];
     
-//    for (int aux=0; aux<moveX.length; aux++) {
-//      moveX[aux] = moveY[aux] = 0;  
+//    //Zerando os valores dentro da array list 
+
+//    for (int aux=0; aux<moveX.size(); aux++) {
+//      moveX.remove(aux);
+//      moxeY.remove(aux);
 //    }
       
 //    while (i <= len) {
   
 //      x += dx;
 //      y += dy;
-//      moveX[i] = int(x);
-//      moveY[i] = int(y);
+//      moveX.add(int(x));
+//      moveY.add(int(y));
 //      i++;
 //    }
 //   }
 
 //}
-//class Move{
-
-//  int [] moveX;
-//  int [] moveY;
-
-
-
-//  void clean(int [] moveX, int moveY[]){
-
-//    int [] moveX;
-//    int [] moveY;
-
-
-
-//    }
-
-
-//  }
