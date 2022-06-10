@@ -1,165 +1,206 @@
+
+  /*--------------------------------------------- COSMIC ASCENTION -----------------------------------------------------------------------/
+  /                                                                                                                                       /
+  /                                                                                                                                       /
+  / Esse projeto surgiu de um trabalho da matéria de processamento de imagens e computação gráfica lecionada por José Guilherme Picolo.   /
+  / Esse jogo foi inspirado nos clássicos space shooter que tinham nos fliperamas nos anos 90.                                            /
+  / Aproveite e caso tenha algum feedback, sinta-se à vontade para notificar Gabriel Keglevich através do email :                         /
+  / gabrielkmoraes@gmail.com ou      gitHub: github.com/gabrielkmoraes                                                                    /
+  /                                                                                                                                       /
+  /                                                                                                                                       /
+  /                                                BOM JOGO  !!!                                                                          /
+  /                                                                                                                                       /
+  /                                         Créditos: Gabriel Keglevich Moraes                                                            /
+  /                                              Erick da Cunha Cézar                                                                     /
+  /                                                                                                                                       /
+  / ______________________________________________________________________________________________________________________________________*/                                                                                                                                       
+  
   
 import java.util.*;
 import java.awt.Point;
 import ddf.minim.*;  
 
 
-
-Minim gerenciador;   // Declaração de um objeto da classe Minim. Será utilizada para controlar os áudios do programa.
-AudioPlayer music, play_effect, fight, enemyShoot, playerShoot, gameOver, endSong;  // Para cada áudio utilizado no software é necessário uma variável do tipo AudioPlayer.size(400, 400);
-// Indica qual imagem do sprite será desenhado.
-// Quando true a img1 do sprite é desenhado.
-// Quando false a img2 do sprite é desenhado.
+//Gerenciador de áudio
+Minim gerenciador;   
+AudioPlayer menuSong, startPlayerSound, fightSong, enemyShootSound, playerShootSound, gameOverSong, endSong;
 
 
-int estado =1;
-//1 = menu
-//2 = iniciar jogo
-//3 = gameOver
-//4 = créditos
-//5 = Pausar
-
-
-
-boolean muted =false;
-float x = 150;   // Variáveis utilizadas para definir a coordenada onde o sprite será desenhado.
-float y = 150;   // Variáveis utilizadas para definir a coordenada onde o sprite será desenhado.
-int tempo;   // Variável utilizada para armazenar o tempo de execução em milissegundos
-PImage img, img1, img2, img3, img4, heart1, heart2, gameOverBG, creditoBG, winBG; //Variáveis utilizadas para armazenar os sprites.
-PImage img_enemy, img_player;
+//Recursos de background, skins e fonte do texto
+PShape player, enemy, life;
+PImage menuBG, somIMG, semSomIMG, fightBG, vidaCheiaIMG, vidaVaziaIMG, gameOverBG, creditosBG, winBG; //Variáveis utilizadas para armazenar os sprites.
+PImage inimigoIMG, jogadorIMG;
 PFont font;
 
 
-int op = 0;
 
-boolean start =false, endScreen;
+/*
+/
+/ Permite alternar entre as telas sendo elas:
+/ 1 = menu
+/ 2 = iniciar jogo
+/ 3 = gameOver
+/ 4 = créditos
+/ 5 = tela caso o player ganhe
+/ 6 = seletor de dificuldades
+/
+*/
+
+int estado =1;
 
 
-
+// Variaveis de posição e arraylist dos tiros
 ArrayList<Shot> shots = new ArrayList<Shot>();
-int xspeed = 5;
-int velocity = 5;
+int enemyY, enemyX = 30, playerX, playerY = 540;
+int xspeed;
 int posX, posY;
 int randomNumber;
+
+
+//Variáveis de pontuação
+int playerHit, enemyHit;
+
+//Variáveis de controle de tempo
 long startTime =0, finishTime, timeElapsed;
 long endScreenStart =0, endScreenNow;
-int iterator  = 0;
-int [] moveX = new int[50000];
-int [] moveY = new int [50000];
-int playerHit, enemyHit;
-int enemyY, enemyX = 30, playerX, playerY = 540;
+
+//Variáveis para controle de transição entre as telas
+boolean start =false, endScreen;
+int op = 0;
+
+//Dificuldade
+int shootTime, difficulty =1, shootVelocity, velocidadePlayer;
 
 
+//Controle do áudio
+boolean muted =false;
 
-//Player player1 = new Player(10);
-PShape player, enemy, life;
 
-//objeto de classe Menu.
-Menu credit;
-//boolean credit = false;
 
 
 void setup() {
-
+  //Tamanho da imagem
   size(500, 600);
-  img = loadImage("menu.jpg");
-  
-  //img.resize(500, 600);  // faz a imagem se ajustar ao background
-  //background(img);
+  //Recursos (skins, background, etc...)
+  menuBG = loadImage("data/Imagens/menuBackground.jpg");
+  vidaCheiaIMG = loadImage("data/Imagens/vidaCheia.png");
+  vidaVaziaIMG = loadImage("data/Imagens/vidaVazia.png");
+  somIMG = loadImage("data/Imagens/som.png");  // sprite botao de som ativo musica menu
+  semSomIMG = loadImage("data/Imagens/semSom.png");  // sprite boao de som desativado musica menu
+  jogadorIMG = loadImage("data/Imagens/playerSkin.png");
+  inimigoIMG = loadImage("data/Imagens/enemySkin.png");
+  gameOverBG = loadImage("data/Imagens/gameOverBackground.png");
+  winBG = loadImage("data/Imagens/winBG.jpg");
+  creditosBG = loadImage("data/Imagens/creditos2.png");
+  fightBG = loadImage("data/Imagens/fightBG.png");
 
-  heart1 = loadImage("heart1.png");
-  heart2 = loadImage("heart2.png");
-  img = loadImage("menu.jpg");  // imagem fundo background menuv
-  img1 = loadImage("icone1.png");  // sprite botao de som ativo musica menu
-  img2 = loadImage("icone2.png");  // sprite boao de som desativado musica menu
-  img_player = loadImage("player.png");
-  img_enemy = loadImage("enemy.png");
-  gameOverBG = loadImage("gameOverBackground.png");
-  winBG = loadImage("winBG.jpg");
-  creditoBG = loadImage("creditos2.png");
-  img3 = loadImage("space_bg.png");
-  img3.resize(500,600);
-  img4 = loadImage("creditos2.png");
-  img4.resize(500,600);
-  
-  
+  ///Redimensionamento das imagens que serão usados como background
+  menuBG.resize(500,600);
+  fightBG.resize(500,600);
+  creditosBG.resize(500,600);
+
+  //Gerenciador de áudio
   gerenciador = new Minim(this);
-  gerenciador2 = new Minim (this);
-  music = gerenciador.loadFile("musicamenu.mp3");
-  play_effect = gerenciador.loadFile("start-level.wav");
-  fight = gerenciador.loadFile("fight.mp3");
-  enemyShoot = gerenciador.loadFile("enemyShoot.mp3");
-  playerShoot = gerenciador.loadFile("playerShoot.mp3");
-  gameOver = gerenciador.loadFile("GameOver.mp3");
+  menuSong = gerenciador.loadFile("musicMenu.mp3");
+  startPlayerSound = gerenciador.loadFile("start-level.wav");
+  fightSong = gerenciador.loadFile("fight.mp3");
+  enemyShootSound = gerenciador.loadFile("enemyShoot.mp3");
+  playerShootSound = gerenciador.loadFile("playerShoot.mp3");
+  gameOverSong = gerenciador.loadFile("GameOver.mp3");
   endSong = gerenciador.loadFile("ending-Song.mp3");
-  fight.rewind();
-  music.rewind();
-  music.play();
+  
+  //Repete o som
+  fightSong.rewind();
+  menuSong.rewind();
+  menuSong.play();
+  
+  //Configura a dificuldade padrão para 1 (EASY)
+  selecionarDificuldade();
 
-
+  PFont font;
+  
 
 }
 
 void draw() {
-
+  //estado realiza o controle de qual tela deverá ser exibida e então chama a função correspondente   
   if(estado ==1) iniciarMenu();
   else if (estado ==2) iniciarJogo();
   else if (estado ==3) gameOver();
   else if (estado ==4) iniciarCreditos();
   else if (estado ==5) winScreen();
+  else if (estado ==6) selecionarDificuldade();
 
  }
 
   
-//--------------------------------------------------- Código do menu---------------------------------------------------//
-
-
 //Quando for pressionado alguma tecla
 
 void keyPressed() {
-  //movimentação do personagem
-  if(estado == 1){
-    if (keyCode == 39 && op == 3) op = 0;
   
-    if (keyCode == 39)  op++;
+  // Seleção das opções no menu inicial ou na tela de dificuldade
+  
+  if(estado == 1 || estado ==6){
+  
+    if ((keyCode == 39 || keyCode == 40) && op == 3 ) op = 0;
+         
+    if ((keyCode == 39 || keyCode == 40))  op++;
     
-    if(keyCode == 32 && op ==1){
-      music.pause();
-      play_effect.play();
+    //Inicia o jogo
+    if(keyCode == 32 && op ==1 && estado ==1){
+      menuSong.pause();
+      startPlayerSound.play();
       op = 5;
       delay(5000);
-      //chama para iniciar o jogo
       estado =2;
     }
-    if(keyCode == 32 && op ==3) estado =4;
-  }
-   if(start){
-    if (keyCode == 39) playerX += 5;
-    else if (keyCode == 37) playerX -= 5;
-    if (playerX +40 > width - 5) playerX = width-40;
-    else if (playerX < 0) playerX = 0;
-  //Para alterar a dificuldade, basta aumentar esse valor
-   if(timeElapsed > 1250){
-    if (keyCode == 32) {
-      shots.add(new Shot(playerX, 580, true));
-      playerShoot.play(0);
-      startTime = System.currentTimeMillis();
-      }
+    
+    
+    //Abre a tela de menu
+    if(keyCode == 32 && op ==2 && estado == 1){
+      op =0;
+      estado = 6;
     }
-    finishTime = System.currentTimeMillis();
-    timeElapsed = finishTime - startTime;
+      
+    //Abre os créditos
+    if(keyCode == 32 && op ==3 && estado ==1) estado = 4;
     
   }
-  //sair dos créditos e voltar para o menu
+  
+  //Sair dos créditos/selação da dificuldade e volta para o menu inical  
+  if(estado == 6 && keyCode == 10) estado =1 ;
   if(estado == 4 && keyCode == 10){
-    estado =1;
-    op =0;  
-  }
+      estado =1;
+      op =0;  
+    }
+  
+  
+  //Quando iniciar o jogo (Mover para dentro de iniciarJogo();
+   if(start){
+      if (keyCode == 39) playerX += velocidadePlayer;
+      else if (keyCode == 37) playerX -= velocidadePlayer;
+      if (playerX + 40 > width - velocidadePlayer) playerX = width-40;
+      else if (playerX < velocidadePlayer) playerX = 0;
+
+
+    
+    //Limita a quantidade de tiros do player
+     if(timeElapsed > shootTime){
+        if (keyCode == 32) {
+          shots.add(new Shot(playerX, 580, true, 1));
+          playerShootSound.play(0);
+          startTime = System.currentTimeMillis();
+        }
+      }
+        finishTime = System.currentTimeMillis();
+        timeElapsed = finishTime - startTime;
+    }
 }
 
 
 
 void mouseClicked() {
+  //Mutar a música
   if((mouseX > 430 && mouseX < 470) &&
      (mouseY >530 && mouseY <570)){
       muted = !muted;
@@ -167,50 +208,58 @@ void mouseClicked() {
 } 
 
 
+
+/*
+/ Função que é chamado dentro de void draw para desenhar
+/ a tela de jogo, o inimigo, os tiros e o player
+*/
 public void iniciarJogo(){
   start = true;
-  fight.play();
-  img3.resize(500, 600);  // faz a imagem se ajustar ao background
-  background(img3);
-
-  //desenha o numero de hits do player e do inimigo
+  fightSong.play();
+  background(fightBG);
 
 
+
+
+
+  //Desenha o inimigo e adiciona uma imagem sobre a forma dele
   enemy = createShape(RECT, 0 , 0, 40,40);
   enemy.setStroke(false);
-  enemy.setTexture(img_enemy);
+  enemy.setTexture(inimigoIMG);
   shape(enemy, enemyX, 110);  
-  enemyX = enemyX + xspeed;
+  enemyX += xspeed;
 
 
   
   //Inverte o sentido da movimentação do inimigo quando ele bater nos limites da tela
-  if(enemyX > height -120 || enemyX < 10){
+  //e chama o método randomNumber para gerar um novo valor aleatório para o inimigo atirar
+  
+  if(enemyX > height - 120 || enemyX < 10){
     randomNumber = randomNumber();
-    xspeed = xspeed * (-1);
+      xspeed = xspeed * (-1);
     }
+    
 
   //Inimigo realiza o tiro
-  atirou(enemyX, velocity, randomNumber);
+  atirou(enemyX, shootVelocity, randomNumber);
 
   //Desenha o player
   player = createShape(RECT, 0, 0,50,50);
   player.setStroke(false);
-  player.setTexture(img_player);
+  player.setTexture(jogadorIMG);
   shape(player, playerX, playerY); 
   
-
- 
-  //Incrementa o valor de i para cada objeto de shot dentro da arraylist shots
+  //Atualiza as posições de tiro de cada objeto Shot
   for (int x =0; x<shots.size(); x++) {
     shots.get(x).update(enemyX, 110, playerX, height-5);
   }
   
+  //Desenha e exibe a vida do player
   life = createShape(RECT, 0, 0, 20, 20);
   life.setStroke(false);
-  life.setTexture(heart1);
+  life.setTexture(vidaCheiaIMG);
   
-   
+  //Altera de acordo com a quantidade de tiro que o atingiu
   switch(playerHit){
     case 0:
     shape(life, 0, 0);
@@ -220,17 +269,17 @@ public void iniciarJogo(){
     case 1:
       shape(life,0,0);
       shape(life,50,0);
-      life.setTexture(heart2);
+      life.setTexture(vidaVaziaIMG);
       shape(life, 100, 0);
       break;
     case 2:
       shape(life,0,0);
-      life.setTexture(heart2);
+      life.setTexture(vidaVaziaIMG);
       shape(life,50,0);
       shape(life, 100, 0);
       break;
     case 3:
-      life.setTexture(heart2);
+      life.setTexture(vidaVaziaIMG);
       shape(life,0,0);
       shape(life,50,0);
       shape(life, 100, 0);
@@ -240,98 +289,87 @@ public void iniciarJogo(){
       break;
   }
   
-  if(enemyHit == 1) {
+  //Quando o inimigo for derrotado:
+  if(enemyHit == 10) {
     background(0);
     estado =5;
   }
   
 }
   
- 
-//39 --> Direita
-// 37 --> Esq
-//32 --> espaço
 
-//keycode W,A,S,D = 87,65,83, 63
+/*
+/ Função que fará o inimigo atirar
+*/
 
-
-
-
-//recebe o valor de enemyX, o valor de random e a velocidade do tiro
-public void atirou(int enemyX, int velocity, int randomNumber) {
+public void atirou(int enemyX, int shootVelocity, int randomNumber) {
+  //O inimigo fica fixo na seguinte posição
   int yPos = 110;
+
+  //Só atira quando o inimigo chegar na posição de realizar o tiro
   if (enemyX == randomNumber) {
     posX = enemyX;
-    //Chama um objeto passando a posição do tiro de x, de y
-    //(estáico no momento para 110) e a velocidade do tiro
-    shots.add(new Shot(posX, yPos, false));
-    enemyShoot.play(0);
-    
+    shots.add(new Shot(posX, yPos, false, shootVelocity));
+    enemyShootSound.play(0);
   }
 }
 
 
 /*
- /--------------------------------------------------------------- FUNÇÕES  ---------------------------------------------------------------/
- */
+/ Gera um valor aleatório para o tiro.
+/ Caso queira aumentar a dificuldade, basta alterar a função para aumentar
+/ a cadência de tiros do inimigo.
+*/
 
-int randomNumber() {
+public int randomNumber() {
   int tiro =1;
   Random rand = new Random();
-  while (tiro%10!=0) {
+  while (tiro%5!=0) {
     tiro = rand.nextInt(0, width-30);
   }
-
   return tiro;
 }
 
 
+/*
+/ Função que iniciar e desenha o menu
+*/
 
 public void iniciarMenu(){
   
-  img.resize(500,600);
-  background(img);
+  background(menuBG);
   imageMode(CENTER);
-  image(img1, 450, 550, 30, 30); //sprites de audio
-    //if(gameOver){}
+  image(somIMG, 450, 550, 30, 30); 
   
-  PFont font;
+  //Se estiver mutado
+  if(muted){
+    image(semSomIMG, 450, 550, 30, 30); //sprites de audio
+     menuSong.pause();
+  }else{  
+    image(somIMG, 450, 550, 30, 30); //sprites de audio
+    menuSong.play();
+  }
+
+  //Cria um novo estilo de fonte para ser aplicado por todo o código
   font = createFont("Pixeled.otf", 25);
   textFont(font);
   
 
-  if(muted){
-    imageMode(CENTER);
-    image(img2, 450, 550, 30, 30); //sprites de audio
-     music.pause();
-  }else{  
-    imageMode(CENTER);
-    image(img1, 450, 550, 30, 30); //sprites de audio
-    music.play();
-  }
-
-
-
-  //println("Keycode Pressionado:" + keyCode);
-
-  //BOTÕES DO MENU
+  //Desenha os botões do menu
   stroke(0, 408, 612);
   strokeWeight(3);
-  
-  
-  //BOTÕES DO MENU
   fill (0, 0, 0);
-  rect(50, 410, 150, 40);  //iniciar jogo (coord.X,coord.Y,comprimentoX,alturaY)
-  rect(180, 500, 150, 40); //CREDITOS (coord.X,coord.Y,comprimentoX,alturaY)
-  rect(310, 410, 150, 40); // DIFICULDADE (coord.X,coord.Y,comprimentoX,alturaY)
+  rect(50, 410, 150, 40);  //INICIAR JOGO 
+  rect(180, 500, 150, 40); //CREDITOS 
+  rect(310, 410, 150, 40); // DIFICULDADE 
   
 
-  //TITULO DO JOGO (NOME DO JOGO)
+  //TITULO DO JOGO (COSMIC ASCENSION)
   fill(0, 408, 612);
   textSize(25);
   text(" COSMIC ASCENSION", 70, 140);
-
   
+  //Sinaliza a opção selecionada
   switch(op){
     case 0 :
       fill(255);
@@ -373,10 +411,12 @@ public void iniciarMenu(){
 }
 
 
+/*
+/Inicia os Créditos
+*/
 
 public void iniciarCreditos(){
-  creditoBG.resize(500,600);
-  background(creditoBG); 
+  background(creditosBG); 
   
   //-----------------creditos-------------------
   fill(0, 408, 612);
@@ -414,104 +454,179 @@ public void iniciarCreditos(){
 
 }
 
+/*
+/ Método para desenhar quando o usuário perder o jogo
+*/
+
+
+//ARRUMAR
 public void gameOver(){
   //Voltar a trabalhar nessa parte
   estado = 3;
-  fight.pause();
-  gameOver.play();
+  fightSong.pause();
+  gameOverSong.play();
   background(0);
-  //gameOverBG.resize(500,600);
   background(gameOverBG);
   textSize(54);
   text("  GAME OVER ", 180, 300);
   println("Na tela do gameOver");
   delay(13500);  
   println("Voltei para o menu");
-  
 
   //volta para o menu
   estado = 1;
-  gameOver.play(0);
-  gameOver.pause();
+  gameOverSong.play(0);
+  gameOverSong.pause();
   reset();
 
 }
 
 
-/*
-/ Reseta todas as variáveis do jogo
-*/
 
+//ARRUMAR
 public void winScreen(){
   estado =5;
-  fight.pause();
+  fightSong.pause();
+  textSize(8);
+  text("Pressione ENTER para voltar ao menu", 140 ,560);
   
-  //endScreen = true;
-  //if(endScreen) {
-  //  endScreenStart = System.currentTimeMillis();
-  //  endScreen = false;
-  //}
-  //endScreenNow = System.currentTimeMillis();
-  if(endSong.isPlaying() || (keyCode == 87 && estado ==5)){
+  if(keyCode == 13 && estado ==5){
     estado = 1;
     endSong.pause();
-    //endScreen = true;
   }
   
   endSong.play();
   winBG.resize(500,600);
   background (winBG);
 
-  
-  
 
 }
 
+/*
+/ Método para redefinir todos os valores das variáveis do jogo
+*/
 public void reset (){
   
   op=0;
   enemyHit = 0;
   playerHit = 0;
+  enemyX = 0;
+  playerX = 0;
+  
+  //remove todos os tiros da tela
   for (int x =0; x<shots.size(); x++) {
     shots.remove(x);
   }
-  enemyX = 0;
-  playerX = 0;
-
+  
+  
 }
 
+
 /*
- /--------------------------------------------------------------- CLASSES  ---------------------------------------------------------------
- */
+/ Método que faz a seleção das dificuldades e configura elas
+*/
+public void selecionarDificuldade(){
 
+  background(menuBG);
+  imageMode(CENTER);
+  
+  font = createFont("Pixeled.otf", 25);
+  textFont(font);
+  background (0);
+  textSize(20);
+  
+  fill(0, 408, 612);
+  text(" SELECIONE A DIFICULDADE ",40, 140);
+  noFill();
+  stroke(0, 408, 612);
+  strokeWeight(3);
+  
+  //Desenha as opções
+  rect(60, 240, 360, 40);
+  rect(60, 300, 360, 40);
+  rect(60, 360, 360, 40);
+  
+  fill(255);
+  textSize(8);
+  text("Pressione ENTER para selecionar", 140 ,560);
+  
+  
+  
+  //Sinaliza as opções de dificuldade/desenha elas
+  textSize(16);
+  
+  switch(op){  
+   case 0:
+      fill(255);
+      text("EASY", 210, 270);
+      text("MEDIUM", 190,330);
+      text("HARD", 210,390);
+      break;
+    case 1:
+      fill(255);
+      text("EASY", 210, 270);
+      fill(0);
+      text("MEDIUM", 190,330);
+      text("HARD", 210,390);
+      break;
+    case 2:
+      fill(255);
+      text("MEDIUM", 190,330);
+      fill(0);
+      text("EASY", 210, 270);
+      text("HARD", 210,390);
+      break;
+    case 3:
+      fill(255);
+      text("HARD", 210,390);
+      fill(0);
+      text("MEDIUM", 190,330);
+      text("EASY", 210, 270);
+      break;
+}
 
-
-//---------------------------------INICIAR CREDITOS--------------------------------------------
+  //Seleciona a dificulade
+  if (keyCode == 32 && op == 1 ) {
+      difficulty = 1;
+      op =0;
+      estado = 1;
+    }
+    
+    
+    if(keyCode == 32 && op == 2) {
+      difficulty =  2;
+      estado = 6;
+      op =0;
+      estado =1 ;
   
- //public void iniciarCreditos(){
-   
- //  credit.creditos(); 
- //  fight.play();
- //  img4.resize(500, 600);  // faz a imagem se ajustar ao background
- //  background(img4);
+    }
+    
+    if (keyCode == 32 && op ==3){
+      difficulty = 3;
+      estado = 6;
+      op =0;
+      estado = 1;
+    }
   
- // /*size (500, 600);
- // img = loadImage("creditos2.png");
- // img.resize(500, 600);  // faz a imagem se ajustar ao background
- // background(img);
- // */
-  
- // }
-  
-  
-
-/* Problemas do código
- - adicionar um timer para os tiros
- - arrumar a posição do tiro
- - Arrumar o hit mark
- - fazer a tela de game over
- 
- */
- 
- 
-  
+    //Configura a dificuldade alterando os valores das variáveis
+    switch(difficulty){
+      case 1:
+        xspeed = 5;
+        velocidadePlayer = 10;
+        shootVelocity = 2;
+        shootTime = 500;
+        break;
+      case 2:
+        xspeed = 10;
+        velocidadePlayer = 7;
+        shootVelocity = 5;
+        shootTime = 800;
+        break;
+      case 3:
+        xspeed = 15;
+        velocidadePlayer = 3;
+        shootVelocity = 8;
+        shootTime = 1250;
+        break;
+    }
+}

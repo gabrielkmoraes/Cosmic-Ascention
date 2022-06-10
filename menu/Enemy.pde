@@ -1,4 +1,10 @@
-
+/*
+/ Classe Enemy que será implementada posteriormente
+/ Ela permitira que o inimigo antes não apenas na posição X
+/ mas também na posição Y. 
+/ Após implentar ela, será possível adicionar mais inimigos ou
+/ objetos para compor a experiência do player  
+*/
 //class Enemy {
 
 //  int i=1;

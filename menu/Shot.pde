@@ -1,14 +1,19 @@
 
-
+/*
+/ Classe que realiza o tiro do jogador e do inimigo
+*/
 class Shot {
 
   int i;
   int xPosition;
   int yPosition;
+  int velocity;
   boolean inverter;
-  boolean hitted; 
-  Shot(int _xPosition, int _yPosition, boolean _inverter) {
-    //xPosition recebe +20 para que o tiro saia no meio da imagem do player/inimigo
+  boolean atingido; 
+    
+  Shot(int _xPosition, int _yPosition, boolean _inverter, int _velocity) {
+    //xPosition recebe +20 para que o tiro seja desenhado no meio da imagem do player/inimigo
+    velocity = _velocity;
     xPosition = _xPosition + 25;
     inverter = _inverter;
     if(inverter) yPosition = _yPosition - 40;
@@ -16,42 +21,34 @@ class Shot {
     ellipse(xPosition, yPosition, 5, 5);
   }
 
+  //Função que desenha as novas posições do tiro 
   void update(int enemyX, int enemyY, int playerX, int playerY) {
     
-    //Verifica se o tiro acerto um enemigo ou o player e de onde ele veoi
-    if (inverter && !hitted) {
+    //Verifica se o tiro acertou um inimigo ou o player e qual foi sua origem (inverter)
+    
+    if (inverter && !atingido) {
+      //Caso seja o player que atirou
       yPosition --;
+      stroke(0, 408, 612);
       ellipse(xPosition, yPosition, 5, 5);
-    } else if (yPosition < height && !hitted) {
-      yPosition ++;
+    }else if (yPosition < height && !atingido) {
+      //Ou se o inimigo atirou
+       yPosition = velocity + yPosition;
+      stroke(178,13,13);
       ellipse(xPosition, yPosition, 5, 5);
     } 
 
-    
-    //hitmark
+    //Inimigo Atingido    
     if ((enemyX - 50 < xPosition && enemyX + 50 > xPosition) &&
-      (enemyY - 50 < yPosition && enemyY + 50 > yPosition) && inverter && !hitted) {
-      //println("enemyX" + enemyX);
-      //println("enemyY" + enemyY);
-        //for (i=0; i<10; i++) println("Acertou o enimigo");
-      hitted = true;
+      (enemyY - 50 < yPosition && enemyY + 50 > yPosition) && inverter && !atingido) {
+      atingido = true;
       enemyHit++;
-      
-      println("enemy hitted:" + enemyHit);
     }
-    // value = 0 (xplayer)
-    // XPosition = 5
-    // yPlayer = 585
+    //Player atingido
     if((playerX < xPosition && playerX + 40 > xPosition) &&
-      (playerY - 40 < yPosition && playerY > yPosition) && !inverter && !hitted) {
-    //if((xPosition >= playerX && xPosition <= playerX +10) && 
-    //   (yPosition >= playerY && yPosition <= playerY-10) && !hitted){
-    //if ((playerX - 10 < xPosition && playerX + 10 > xPosition) &&
-    //  (playerY <= yPosition && playerY + 10 > yPosition ) && !hitted && !inverter) {
-        hitted = true;
+      (playerY - 40 < yPosition && playerY > yPosition) && !inverter && !atingido) {
+        atingido = true;
         playerHit++;
-      println("palyer hitted: " + playerHit);
     }
-    
   }
 }
