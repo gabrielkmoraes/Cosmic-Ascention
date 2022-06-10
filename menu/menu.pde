@@ -91,7 +91,7 @@ void setup() {
   inimigoIMG = loadImage("data/Imagens/enemySkin.png");
   gameOverBG = loadImage("data/Imagens/gameOverBackground.png");
   winBG = loadImage("data/Imagens/winBG.jpg");
-  creditosBG = loadImage("data/Imagens/creditos2.png");
+  creditosBG = loadImage("data/Imagens/creditosBG.png");
   fightBG = loadImage("data/Imagens/fightBG.png");
 
   ///Redimensionamento das imagens que serão usados como background
@@ -101,13 +101,13 @@ void setup() {
 
   //Gerenciador de áudio
   gerenciador = new Minim(this);
-  menuSong = gerenciador.loadFile("musicMenu.mp3");
-  startPlayerSound = gerenciador.loadFile("start-level.wav");
-  fightSong = gerenciador.loadFile("fight.mp3");
-  enemyShootSound = gerenciador.loadFile("enemyShoot.mp3");
-  playerShootSound = gerenciador.loadFile("playerShoot.mp3");
-  gameOverSong = gerenciador.loadFile("GameOver.mp3");
-  endSong = gerenciador.loadFile("ending-Song.mp3");
+  menuSong = gerenciador.loadFile("Som/musicMenu.mp3");
+  startPlayerSound = gerenciador.loadFile("Som/start-level.wav");
+  fightSong = gerenciador.loadFile("Som/fight.mp3");
+  enemyShootSound = gerenciador.loadFile("Som/enemyShoot.mp3");
+  playerShootSound = gerenciador.loadFile("Som/playerShoot.mp3");
+  gameOverSong = gerenciador.loadFile("Som/GameOver.mp3");
+  endSong = gerenciador.loadFile("Som/ending-Song.mp3");
   
   //Repete o som
   fightSong.rewind();
@@ -324,7 +324,7 @@ public void atirou(int enemyX, int shootVelocity, int randomNumber) {
 public int randomNumber() {
   int tiro =1;
   Random rand = new Random();
-  while (tiro%5!=0) {
+  while (tiro%5!=0 || tiro%10 !=0) {
     tiro = rand.nextInt(0, width-30);
   }
   return tiro;
